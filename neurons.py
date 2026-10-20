@@ -52,6 +52,7 @@ class Neuron():
 class Identity(Neuron):
     def __init__(self, num_inputs):
         super().__init__(num_inputs)
+        self.type = "Identity"
 
     def activation_func(self):
         self.output = self.weighted_sum()
@@ -62,6 +63,7 @@ class Identity(Neuron):
 class Binary(Neuron):
     def __init__(self, num_inputs):
         super().__init__(num_inputs)
+        self.type = "Binary"
 
     def activation_func(self):
         if self.weighted_sum() >= 0:
@@ -75,6 +77,7 @@ class Binary(Neuron):
 class Sigmoid(Neuron):
     def __init__(self, num_inputs):
         super().__init__(num_inputs)
+        self.type = "Sigmoid"
 
     def activation_func(self):
         self.output = 1/1+math.e**-self.weighted_sum()
@@ -85,6 +88,7 @@ class Sigmoid(Neuron):
 class ReLU(Neuron):
     def __init__(self, num_inputs):
         super().__init__(num_inputs)
+        self.type = "ReLU"
 
     def activation_func(self):
         weighted_sum = self.weighted_sum
