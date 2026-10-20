@@ -1,0 +1,100 @@
+import math
+import random
+
+class Neuron():
+    def __init__(self, num_inputs:int):
+        self.weights = [random.random() for i in range(num_inputs)]
+        self.bias = 1
+
+    # <----------------------- Forward Pass ------------------------->
+
+    def update_inputs(self, inputs):
+        self.inputs = inputs
+
+    def weighted_sum(self):
+        return sum(w*x for w, x in zip(self.weights, self.inputs))
+
+    def activation_func():
+        # Abstract Method
+        print("No activation_func method declared")
+        raise SystemExit
+
+    def forward(self, inputs):
+        self.update_inputs(inputs)
+        self.weighted_sum()
+        self.activation_func()
+        return self.output
+
+    # <---------------------- Backpropagation ---------------------->
+
+    def output_get_error(self, target):
+        self.error = self.output - target
+
+    def hidden_get_error(self, next_layer_neurons, neuron_index):
+        self.error = sum(next_neuron.error_gradient * next_neuron.weights[neuron_index] for next_neuron in next_layer_neurons)
+
+    def calc_error_gradiant(self):
+        # Abstract Method
+        print("No calc_error_gradient method declared")
+        raise SystemExit
+
+    def calc_parameter_gradients(self):
+        self.bias_gradient = self.error_gradient
+        self.weight_gradients = [self.error_gradient * i for i in self.inputs]
+
+    def update_params(self, learning_rate):
+        # Update weights and bias
+        self.bias -= learning_rate * self.bias_gradient
+        self.weights = [weight - learning_rate * weight_gradient for weight, weight_gradient in zip(self.weights, self.weight_gradients)]
+
+# <---------------------------------------------------- Concrete Neurons ---------------------------------------------------------->
+
+class Identity(Neuron):
+    def __init__(self, num_inputs):
+        super().__init__(num_inputs)
+
+    def activation_func(self):
+        self.output = self.weighted_sum()
+
+    def calc_error_gradiant(self):
+        self.error_gradient = self.error
+    
+class Binary(Neuron):
+    def __init__(self, num_inputs):
+        super().__init__(num_inputs)
+
+    def activation_func(self):
+        if self.weighted_sum() >= 0:
+            self.output = 1
+        else:
+            self.output = 0
+
+    def calc_error_gradiant(self):
+        self.error_gradient = self.error
+
+class Sigmoid(Neuron):
+    def __init__(self, num_inputs):
+        super().__init__(num_inputs)
+
+    def activation_func(self):
+        self.output = 1/1+math.e**-self.weighted_sum()
+
+    def calc_error_gradiant(self):
+        self.error_gradient = self.error * (self.output * (1.0 - self.output))
+
+class ReLU(Neuron):
+    def __init__(self, num_inputs):
+        super().__init__(num_inputs)
+
+    def activation_func(self):
+        weighted_sum = self.weighted_sum
+        if weighted_sum() > 0:
+            self.output = weighted_sum
+        else:
+            self.output = 0
+
+    def calc_error_gradiant(self):
+        if self.output > 0:
+            self.error_gradient = self.error
+        else:
+            self.error_gradient = 0
