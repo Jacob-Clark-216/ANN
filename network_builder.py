@@ -1,7 +1,7 @@
 import neurons
 
 class Layer():
-    def __init__(self, layer_neurons, num_inputs, neuron_type="ReLU"):
+    def __init__(self, layer_neurons, num_inputs: int, neuron_type="ReLU"):
         self.layer_neurons = []
         if type(layer_neurons) == int:
             for i in range(layer_neurons):
@@ -19,6 +19,9 @@ class Layer():
         for n in self.layer_neurons:
             output.append(n.type)
         return ", ".join(output)
+
+    def __len__(self):
+        return len(self.layer_neurons)
 
     def print_weights(self):
         for n in self.layer_neurons:
@@ -42,19 +45,92 @@ class Layer():
 
     # <--------------------- Forward Pass ------------------------>
 
-    def forward(self):
+    def forward(self, inputs):
         self.outputs = []
         for n in self.layer_neurons:
-            self.output.append(n.forward())
+            self.output.append(n.forward(inputs))
+        return self.outputs
+
+    def input_forward(self, inputs):
+        self.outputs = []
+        for i, n in zip(inputs, self.layer_neurons):
+            self.output.append(n.forward(i))
+        return self.outputs
 
     # <-------------------- Backpropagation ---------------------->
 
-    def backward(self, layer_index, target, learning_rate):
+    def backward(self, layer_index:int, targets:list, learning_rate):
         for n in self.layer_neurons:
             if layer_index == -1:
-                n.output_get_error(target)
+                n.output_get_error(targets[self.layer_neurons.index(n)])
             else:
-                n.hidden_get_error(target, self.layer_neurons.index(n))
+                n.hidden_get_error(targets, self.layer_neurons.index(n))
             n.calc_error_gradient()
             n.calc_perameter_gradients()
             n.update_params(learning_rate)
+
+# <------------------------------------------------------------- Network Class ------------------------------------------------------------->
+
+class Network():
+    def __init__(self, layers:list):
+        self.layers = []
+        for i in range(len(layers)):
+            if i == 0:
+                self.layers.append(Layer(layers[i], 0))
+            else:
+                self.layers.append(Layer(layers[i], len(self.layers[-1])))
+
+    # <------------------ Inspection Methods ------------------>
+
+    def __str__(self):
+        output = ""
+        for layer in self.layers:
+            output += str(layer) + "\n"
+        return output
+
+    def weights(self):
+        for layer in self.layers:
+            for n in layer:
+                print(n.weights())
+            print()
+
+    def bias(self):
+        for layer in self.layers:
+            for n in layer:
+                print(n.bias())
+            print()
+
+    # <--------------------- Edit Layers --------------------->
+
+    def add_output_layer(self, layer_neurons, type = "ReLU"):
+        self.layers.append(Layer(layer_neurons, len(self.layers[-1]), type))
+
+    def add_hidden_layer(self):
+        # TODO: Add layer
+        # Loop through next layers and update number of inputs
+        pass
+
+    # <----------------------- Forward ----------------------->
+
+    def forward(self, inputs:list):
+        self.inputs = inputs
+        self.inputs = self.layers[0].input_forward(inputs)
+        for layer in self.layers[1:]:
+            self.inputs = layer.forward(inputs)
+        self.output = self.inputs
+        return self.output
+
+    # <------------------- Backpropagation ------------------->
+
+    def backward(self, target:list, learning_rate = 0.001):
+        i = -1
+        while i + len(self.layers) != -1:
+            self.layers[i].backward(i+len(self.layers), target, learning_rate)
+            target = self.layers[i]
+            i -= 1
+
+    def train(self, data:list, targets:list, learning_rate = 0.001):
+        for i in range(len(data)):
+            self.forward(data[i])
+            self.backward(targets[i], learning_rate)
+            print(f"Round {i} (of {len(data)}) complete!")
