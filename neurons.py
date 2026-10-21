@@ -3,8 +3,8 @@ import random
 
 class Neuron():
     def __init__(self, num_inputs:int):
-        self.weights = [random.random() for i in range(num_inputs)]
-        self.bias = 1
+        self.weights = [random.random()-0.5 for i in range(num_inputs)]
+        self.bias = 0
         self.error = 0
         self.weight_gradients = []
         self.bias_gradient = 0
@@ -15,9 +15,16 @@ class Neuron():
         while len(self.weights) < num_inputs:
             self.weights.append(random.random())
 
+    def __str__(self):
+        output = ""
+        output += f"{self.type}\n"
+        output += f"{self.bias}\n"
+        output += f"{self.weights}"
+        return output
+
     # <----------------------- Forward Pass ------------------------->
 
-    def update_inputs(self, inputs):
+    def update_inputs(self, inputs:list):
         self.inputs = inputs
 
     def weighted_sum(self):
@@ -28,9 +35,8 @@ class Neuron():
         print("No activation_func method declared")
         raise SystemExit
 
-    def forward(self, inputs):
+    def forward(self, inputs:list):
         self.update_inputs(inputs)
-        self.weighted_sum()
         self.activation_func()
         return self.output
 
@@ -39,10 +45,15 @@ class Neuron():
     def output_get_error(self, target):
         self.error = self.output - target
 
-    def hidden_get_error(self, next_layer_neurons, neuron_index):
-        self.error = sum(next_neuron.error_gradient * next_neuron.weights[neuron_index] for next_neuron in next_layer_neurons)
+    def hidden_get_error(self, next_layer_neurons:list, neuron_index:int):
+        try:
+            self.error = sum(next_neuron.error_gradient * next_neuron.weights[neuron_index] for next_neuron in next_layer_neurons)
+        except(IndexError):
+            print(neuron_index)
+            print([next_neuron.weights for next_neuron in next_layer_neurons])
+            raise SystemExit
 
-    def calc_error_gradiant(self):
+    def calc_error_gradient(self):
         # Abstract Method
         print("No calc_error_gradient method declared")
         raise SystemExit
@@ -66,7 +77,7 @@ class Identity(Neuron):
     def activation_func(self):
         self.output = self.weighted_sum()
 
-    def calc_error_gradiant(self):
+    def calc_error_gradient(self):
         self.error_gradient = self.error
     
 class Binary(Neuron):
@@ -80,7 +91,7 @@ class Binary(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradiant(self):
+    def calc_error_gradient(self):
         self.error_gradient = self.error
 
 class Sigmoid(Neuron):
@@ -89,9 +100,9 @@ class Sigmoid(Neuron):
         self.type = "Sigmoid"
 
     def activation_func(self):
-        self.output = 1/1+math.e**-self.weighted_sum()
+        self.output = 1/(1+math.e**-self.weighted_sum())
 
-    def calc_error_gradiant(self):
+    def calc_error_gradient(self):
         self.error_gradient = self.error * (self.output * (1.0 - self.output))
 
 class ReLU(Neuron):
@@ -100,13 +111,13 @@ class ReLU(Neuron):
         self.type = "ReLU"
 
     def activation_func(self):
-        weighted_sum = self.weighted_sum
-        if weighted_sum() > 0:
+        weighted_sum = self.weighted_sum()
+        if weighted_sum > 0:
             self.output = weighted_sum
         else:
             self.output = 0
 
-    def calc_error_gradiant(self):
+    def calc_error_gradient(self):
         if self.output > 0:
             self.error_gradient = self.error
         else:

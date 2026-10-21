@@ -54,35 +54,40 @@ class Layer():
     def forward(self, inputs):
         self.outputs = []
         for n in self.layer_neurons:
-            self.output.append(n.forward(inputs))
+            self.outputs.append(n.forward(inputs))
         return self.outputs
 
     def input_forward(self, inputs):
         self.outputs = []
         for i, n in zip(inputs, self.layer_neurons):
-            self.output.append(n.forward(i))
+            i = [i]
+            self.outputs.append(n.forward(i))
         return self.outputs
 
     # <-------------------- Backpropagation ---------------------->
 
-    def backward(self, layer_index:int, targets:list, learning_rate):
+    def output_backward(self, targets:list, learning_rate:float):
         for n in self.layer_neurons:
-            if layer_index == -1:
-                n.output_get_error(targets[self.layer_neurons.index(n)])
-            else:
-                n.hidden_get_error(targets, self.layer_neurons.index(n))
+            n.output_get_error(targets[self.layer_neurons.index(n)])
             n.calc_error_gradient()
-            n.calc_perameter_gradients()
+            n.calc_parameter_gradients()
+            n.update_params(learning_rate)
+    
+    def backward(self, targets:list, learning_rate:float):
+        for n in self.layer_neurons:
+            n.hidden_get_error(targets, self.layer_neurons.index(n))
+            n.calc_error_gradient()
+            n.calc_parameter_gradients()
             n.update_params(learning_rate)
 
 # <------------------------------------------------------------- Network Class ------------------------------------------------------------->
 
 class Network():
-    def __init__(self, layers:list):
+    def __init__(self, num_inputs:int, layers:list):
         self.layers = []
         for i in range(len(layers)):
             if i == 0:
-                self.layers.append(Layer(layers[i], 0))
+                self.layers.append(Layer(layers[i], num_inputs))
             else:
                 self.layers.append(Layer(layers[i], len(self.layers[-1])))
 
@@ -96,14 +101,14 @@ class Network():
 
     def weights(self):
         for layer in self.layers:
-            for n in layer:
-                print(n.weights())
+            for n in layer.layer_neurons:
+                print(n.weights)
             print()
 
     def bias(self):
         for layer in self.layers:
-            for n in layer:
-                print(n.bias())
+            for n in layer.layer_neurons:
+                print(n.bias)
             print()
 
     # <--------------------- Edit Layers --------------------->
@@ -128,24 +133,95 @@ class Network():
     # <----------------------- Forward ----------------------->
 
     def forward(self, inputs:list):
-        self.inputs = inputs
         self.inputs = self.layers[0].input_forward(inputs)
         for layer in self.layers[1:]:
-            self.inputs = layer.forward(inputs)
+            self.inputs = layer.forward(self.inputs)
         self.output = self.inputs
         return self.output
 
     # <------------------- Backpropagation ------------------->
 
-    def backward(self, target:list, learning_rate = 0.001):
-        i = -1
-        while i + len(self.layers) != -1:
-            self.layers[i].backward(i+len(self.layers), target, learning_rate)
-            target = self.layers[i]
+    def backward(self, targets:list, learning_rate = 0.001):
+        self.layers[-1].output_backward(targets, learning_rate)
+        targets = self.layers[-1].layer_neurons
+        i = -2
+        while i + len(self.layers) != 0:
+            self.layers[i].backward(targets, learning_rate)
             i -= 1
 
-    def train(self, data:list, targets:list, learning_rate = 0.001):
+    def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001):
+        for e in range(epochs):
+            for i in range(len(data)):
+                output = self.forward(data[i])
+                self.backward(targets[i], learning_rate)
+                print(f"Round {i+1} of {len(data)} complete! ({output} | {targets[i]})")
+            print(f"Epoch {e+1} Complete!")
+
+    def test(self, data:list, expected_values:list):
+        success = 0
         for i in range(len(data)):
-            self.forward(data[i])
-            self.backward(targets[i], learning_rate)
-            print(f"Round {i} (of {len(data)}) complete!")
+            output = self.forward(data[i])
+            expected = expected_values[i]
+            if output == expected:
+                success += 1
+            print(f"{output} | {expected}")
+        accuracy = (success/len(data))*100
+        print(f"{success} of {len(data)} Correct - {accuracy}%")
+
+train_data = [
+    [-0.15, 0.22],
+    [0.85, -0.71],
+    [0.31, -0.11],
+    [-0.68, 0.75],
+    [-0.05, -0.34],
+    [0.12, 0.88],
+    [-0.25, -0.18],
+    [-0.79, -0.62],
+    [0.42, 0.21],
+    [0.91, 0.35],
+    [-0.11, -0.45],
+    [-0.55, -0.81],
+    [0.28, 0.33],
+    [0.72, 0.65],
+    [0.02, 0.09],
+    [-0.88, 0.15]
+]
+train_targets = [
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0]
+]
+
+test_data = [
+    [-0.21, 0.15],
+    [0.78, -0.65],
+    [0.35, -0.22],
+    [-0.71, 0.69]
+]
+test_expected_values = [
+    [1],
+    [0],
+    [1],
+    [0]
+]
+
+network = Network(1, [["Sigmoid", "Sigmoid"], ["Sigmoid"], ["Binary"]])
+print(network)
+network.weights()
+network.train(train_data, train_targets, 1000, 0.1)
+network.weights()
+network.bias()
+network.test(test_data, test_expected_values)
