@@ -5,6 +5,15 @@ class Neuron():
     def __init__(self, num_inputs:int):
         self.weights = [random.random() for i in range(num_inputs)]
         self.bias = 1
+        self.error = 0
+        self.weight_gradients = []
+        self.bias_gradient = 0
+
+    def update_num_input(self, num_inputs:int):
+        while len(self.weights) > num_inputs:
+            self.weights.pop()
+        while len(self.weights) < num_inputs:
+            self.weights.append(random.random())
 
     # <----------------------- Forward Pass ------------------------->
 

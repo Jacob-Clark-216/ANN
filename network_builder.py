@@ -43,6 +43,12 @@ class Layer():
             biases.append(n.bias)
         return biases
 
+    # <--------------------- Update Methods --------------------->
+
+    def update_num_inputs(self, new_num_inputs):
+        for n in self.layer_neurons:
+            n.update_num_input(new_num_inputs)
+
     # <--------------------- Forward Pass ------------------------>
 
     def forward(self, inputs):
@@ -102,13 +108,22 @@ class Network():
 
     # <--------------------- Edit Layers --------------------->
 
-    def add_output_layer(self, layer_neurons, type = "ReLU"):
-        self.layers.append(Layer(layer_neurons, len(self.layers[-1]), type))
+    def add_output_layer(self, layer_neurons, neuron_type = "ReLU"):
+        self.layers.append(Layer(layer_neurons, len(self.layers[-1]), neuron_type))
 
-    def add_hidden_layer(self):
-        # TODO: Add layer
-        # Loop through next layers and update number of inputs
-        pass
+    def insert_layer(self, index, layer_neurons, neuron_type = "ReLU"):
+        if index > len(self.layers):
+            self.add_output_layer(index, layer_neurons, neuron_type)
+        elif index == 0:
+            self.layers.insert(0, 1, neuron_type)
+            for layer in self.layers[1:]:
+                layer.update_num_inputs(layer_neurons)
+                layer_neurons = len(layer)
+        else:
+            self.layers.insert(index, Layer(layer_neurons, len(self.layers[index-1]), neuron_type))
+            for layer in self.layers[index+1:]:
+                layer.update_num_inputs(layer_neurons)
+                layer_neurons = len(layer)
 
     # <----------------------- Forward ----------------------->
 
