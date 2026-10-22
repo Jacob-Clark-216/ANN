@@ -57,13 +57,6 @@ class Layer():
             self.outputs.append(n.forward(inputs))
         return self.outputs
 
-    def input_forward(self, inputs):
-        self.outputs = []
-        for i, n in zip(inputs, self.layer_neurons):
-            i = [i]
-            self.outputs.append(n.forward(i))
-        return self.outputs
-
     # <-------------------- Backpropagation ---------------------->
 
     def output_backward(self, targets:list, learning_rate:float):
@@ -133,10 +126,9 @@ class Network():
     # <----------------------- Forward ----------------------->
 
     def forward(self, inputs:list):
-        self.inputs = self.layers[0].input_forward(inputs)
-        for layer in self.layers[1:]:
-            self.inputs = layer.forward(self.inputs)
-        self.output = self.inputs
+        for layer in self.layers:
+            inputs = layer.forward(inputs)
+        self.output = inputs
         return self.output
 
     # <------------------- Backpropagation ------------------->
@@ -147,6 +139,7 @@ class Network():
         i = -2
         while i + len(self.layers) != 0:
             self.layers[i].backward(targets, learning_rate)
+            targets = self.layers[i].layer_neurons
             i -= 1
 
     def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001):
@@ -218,10 +211,10 @@ test_expected_values = [
     [0]
 ]
 
-network = Network(1, [["Sigmoid", "Sigmoid"], ["Sigmoid"], ["Binary"]])
-print(network)
+network = Network(2, [["Sigmoid"]*4, ["Sigmoid"]])
 network.weights()
-network.train(train_data, train_targets, 1000, 0.1)
+network.train(train_data, train_targets, 5000, 0.5)
 network.weights()
 network.bias()
+print(network)
 network.test(test_data, test_expected_values)

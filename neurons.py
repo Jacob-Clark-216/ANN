@@ -3,7 +3,7 @@ import random
 
 class Neuron():
     def __init__(self, num_inputs:int):
-        self.weights = [random.random()-0.5 for i in range(num_inputs)]
+        self.weights = [random.uniform(-1, 1) for i in range(num_inputs)]
         self.bias = 0
         self.error = 0
         self.weight_gradients = []
