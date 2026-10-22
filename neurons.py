@@ -149,4 +149,4 @@ class LeakyReLU(Neuron):
         if self.output > 0:
             self.error_gradient = self.error
         else:
-            self.error_gradient = 0.01
+            self.error_gradient = 0.01 * self.error
