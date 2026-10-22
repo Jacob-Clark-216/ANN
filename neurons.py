@@ -80,7 +80,7 @@ class Identity(Neuron):
     def activation_func(self):
         self.output = self.weighted_sum()
 
-    def calc_error_gradient(self, is_hidden = True):
+    def calc_error_gradient(self, is_hidden = True, method = "BCE"):
         self.error_gradient = self.error
     
 class Binary(Neuron):
@@ -94,7 +94,7 @@ class Binary(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradient(self, is_hidden = True):
+    def calc_error_gradient(self, is_hidden = True, method = "BCE"):
         self.error_gradient = self.error
 
 
@@ -106,11 +106,14 @@ class Sigmoid(Neuron):
     def activation_func(self):
         self.output = 1/(1+math.e**-self.weighted_sum())
 
-    def calc_error_gradient(self, is_hidden = True):
+    def calc_error_gradient(self, is_hidden = True, method = "BCE"):
         if is_hidden:
             self.error_gradient = -1.0 * self.error * (self.output * (1.0 - self.output))
         else:
-            self.error_gradient = self.error * (self.output * (1.0 - self.output))
+            if method == "MSE": #(Mean Squared Error)
+                self.error_gradient = self.error * (self.output * (1.0 - self.output))
+            elif method == "BCE": #(Binary Cross-Entropy)
+                self.error_gradient = self.error
 
 class ReLU(Neuron):
     def __init__(self, num_inputs):
@@ -124,7 +127,7 @@ class ReLU(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradient(self, is_hidden = True):
+    def calc_error_gradient(self, is_hidden = True, method = "BCE"):
         if self.output > 0:
             self.error_gradient = self.error
         else:
@@ -142,7 +145,7 @@ class LeakyReLU(Neuron):
         else:
             self.output = 0.01 * weighted_sum
 
-    def calc_error_gradient(self, is_hidden = True):
+    def calc_error_gradient(self, is_hidden = True, method = "BCE"):
         if self.output > 0:
             self.error_gradient = self.error
         else:

@@ -59,10 +59,10 @@ class Layer():
 
     # <-------------------- Backpropagation ---------------------->
 
-    def output_backward(self, targets:list):
+    def output_backward(self, targets:list, method:str):
         for n in self.layer_neurons:
             n.output_get_error(targets[self.layer_neurons.index(n)])
-            n.calc_error_gradient(False)
+            n.calc_error_gradient(False, method)
             n.calc_parameter_gradients()
     
     def backward(self, targets:list):
@@ -135,8 +135,8 @@ class Network():
 
     # <------------------- Backpropagation ------------------->
 
-    def backward(self, targets:list, learning_rate = 0.001):
-        self.layers[-1].output_backward(targets)
+    def backward(self, targets:list, learning_rate = 0.001, method = "BCE"):
+        self.layers[-1].output_backward(targets, method)
         targets = self.layers[-1].layer_neurons
         i = -2
         while i + len(self.layers) >= 0:
@@ -146,13 +146,13 @@ class Network():
         for layer in self.layers:
             layer.update_params(learning_rate)
 
-    def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001):
+    def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001, method = "BCE"):
         for e in range(epochs):
             combined = list(zip(data, targets))
             random.shuffle(combined)
             for inputs, target in combined:
                 output = self.forward(inputs)
-                self.backward(target, learning_rate)
+                self.backward(target, learning_rate, method)
             status = f"Epoch {e+1} of {epochs} Complete!"
             print(status, end="")
             print("\b"*len(status), end="")
