@@ -164,5 +164,3 @@ class Network():
             if output == expected:
                 success += 1
             print(f"{output} | {expected}")
-        accuracy = (success/len(data))*100
-        print(f"{success} of {len(data)} Correct - {accuracy}%")
