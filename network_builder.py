@@ -1,4 +1,4 @@
-import neurons
+import neurons, random
 
 class Layer():
     def __init__(self, layer_neurons, num_inputs: int, neuron_type="ReLU"):
@@ -70,7 +70,6 @@ class Layer():
             n.hidden_get_error(targets, self.layer_neurons.index(n))
             n.calc_error_gradient()
             n.calc_parameter_gradients()
-        print("Backward Run!")
 
     def update_params(self, learning_rate:list):
         for n in self.layer_neurons:
@@ -149,10 +148,12 @@ class Network():
 
     def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001):
         for e in range(epochs):
-            for i in range(len(data)):
-                output = self.forward(data[i])
-                self.backward(targets[i], learning_rate)
-                print(f"Round {i+1} of {len(data)} complete! ({output} | {targets[i]})")
+            combined = list(zip(data, targets))
+            random.shuffle(combined)
+            for inputs, target in combined:
+                output = self.forward(inputs)
+                self.backward(target, learning_rate)
+                print(f"Round complete! ({output} | {target})")
             print(f"Epoch {e+1} Complete!")
 
     def test(self, data:list, expected_values:list):
