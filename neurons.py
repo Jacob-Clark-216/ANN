@@ -130,7 +130,7 @@ class ReLU(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradient(self, is_hidden):
+    def calc_error_gradient(self, is_hidden = True):
         if self.output > 0:
             if is_hidden:
                 self.error_gradient = self.error * -1.0
@@ -138,3 +138,24 @@ class ReLU(Neuron):
                 self.error_gradient = self.error
         else:
             self.error_gradient = 0
+
+class LeakyReLU(Neuron):
+    def __init__(self, num_inputs):
+        super().__init__(num_inputs)
+        self.type = "Leaky ReLU"
+
+    def activation_func(self):
+        weighted_sum = self.weighted_sum()
+        if weighted_sum > 0:
+            self.output = weighted_sum
+        else:
+            self.output = 0.01 * weighted_sum
+
+    def calc_error_gradient(self, is_hidden = True):
+        if self.output > 0:
+            if is_hidden:
+                self.error_gradient = self.error * -1.0
+            else:
+                self.error_gradient = self.error
+        else:
+            self.error_gradient = 0.01

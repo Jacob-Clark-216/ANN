@@ -1,7 +1,7 @@
 import neurons, random
 
 class Layer():
-    def __init__(self, layer_neurons, num_inputs: int, neuron_type="ReLU"):
+    def __init__(self, layer_neurons, num_inputs: int, neuron_type="LeakyReLU"):
         self.layer_neurons = []
         if type(layer_neurons) == int:
             for i in range(layer_neurons):
@@ -108,10 +108,10 @@ class Network():
 
     # <--------------------- Edit Layers --------------------->
 
-    def add_output_layer(self, layer_neurons, neuron_type = "ReLU"):
+    def add_output_layer(self, layer_neurons, neuron_type = "LeakyReLU"):
         self.layers.append(Layer(layer_neurons, len(self.layers[-1]), neuron_type))
 
-    def insert_layer(self, index, layer_neurons, neuron_type = "ReLU"):
+    def insert_layer(self, index, layer_neurons, neuron_type = "LeakyReLU"):
         if index > len(self.layers):
             self.add_output_layer(index, layer_neurons, neuron_type)
         elif index == 0:
