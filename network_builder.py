@@ -59,18 +59,21 @@ class Layer():
 
     # <-------------------- Backpropagation ---------------------->
 
-    def output_backward(self, targets:list, learning_rate:float):
+    def output_backward(self, targets:list):
         for n in self.layer_neurons:
             n.output_get_error(targets[self.layer_neurons.index(n)])
             n.calc_error_gradient()
             n.calc_parameter_gradients()
-            n.update_params(learning_rate)
     
-    def backward(self, targets:list, learning_rate:float):
+    def backward(self, targets:list):
         for n in self.layer_neurons:
             n.hidden_get_error(targets, self.layer_neurons.index(n))
             n.calc_error_gradient()
             n.calc_parameter_gradients()
+        print("Backward Run!")
+
+    def update_params(self, learning_rate:list):
+        for n in self.layer_neurons:
             n.update_params(learning_rate)
 
 # <------------------------------------------------------------- Network Class ------------------------------------------------------------->
@@ -134,13 +137,15 @@ class Network():
     # <------------------- Backpropagation ------------------->
 
     def backward(self, targets:list, learning_rate = 0.001):
-        self.layers[-1].output_backward(targets, learning_rate)
+        self.layers[-1].output_backward(targets)
         targets = self.layers[-1].layer_neurons
         i = -2
-        while i + len(self.layers) != 0:
-            self.layers[i].backward(targets, learning_rate)
+        while i + len(self.layers) >= 0:
+            self.layers[i].backward(targets)
             targets = self.layers[i].layer_neurons
             i -= 1
+        for layer in self.layers:
+            layer.update_params(learning_rate)
 
     def train(self, data:list, targets:list, epochs = 50, learning_rate = 0.001):
         for e in range(epochs):
@@ -213,7 +218,7 @@ test_expected_values = [
 
 network = Network(2, [["Sigmoid"]*4, ["Sigmoid"]])
 network.weights()
-network.train(train_data, train_targets, 5000, 0.5)
+network.train(train_data, train_targets, 500, 0.5)
 network.weights()
 network.bias()
 print(network)

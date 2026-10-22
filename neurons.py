@@ -65,6 +65,9 @@ class Neuron():
     def update_params(self, learning_rate):
         # Update weights and bias
         self.bias -= learning_rate * self.bias_gradient
+        if len(self.weight_gradients) == 0:
+            print("Error: weight_gradients not present. Cannot update weights.")
+            raise SystemExit
         self.weights = [weight - learning_rate * weight_gradient for weight, weight_gradient in zip(self.weights, self.weight_gradients)]
 
 # <---------------------------------------------------- Concrete Neurons ---------------------------------------------------------->
