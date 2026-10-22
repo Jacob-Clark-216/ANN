@@ -80,8 +80,11 @@ class Identity(Neuron):
     def activation_func(self):
         self.output = self.weighted_sum()
 
-    def calc_error_gradient(self):
-        self.error_gradient = self.error
+    def calc_error_gradient(self, is_hidden = True):
+        if is_hidden:
+            self.error_gradient = self.error * -1.0
+        else:
+            self.error_gradient = self.error
     
 class Binary(Neuron):
     def __init__(self, num_inputs):
@@ -94,8 +97,12 @@ class Binary(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradient(self):
-        self.error_gradient = self.error
+    def calc_error_gradient(self, is_hidden = True):
+        if is_hidden:
+            self.error_gradient = self.error * -1.0
+        else:
+            self.error_gradient = self.error
+
 
 class Sigmoid(Neuron):
     def __init__(self, num_inputs):
@@ -105,8 +112,11 @@ class Sigmoid(Neuron):
     def activation_func(self):
         self.output = 1/(1+math.e**-self.weighted_sum())
 
-    def calc_error_gradient(self):
-        self.error_gradient = self.error * (self.output * (1.0 - self.output))
+    def calc_error_gradient(self, is_hidden = True):
+        if is_hidden:
+            self.error_gradient = -1.0 * self.error * (self.output * (1.0 - self.output))
+        else:
+            self.error_gradient = self.error * (self.output * (1.0 - self.output))
 
 class ReLU(Neuron):
     def __init__(self, num_inputs):
@@ -120,8 +130,11 @@ class ReLU(Neuron):
         else:
             self.output = 0
 
-    def calc_error_gradient(self):
+    def calc_error_gradient(self, is_hidden):
         if self.output > 0:
-            self.error_gradient = self.error
+            if is_hidden:
+                self.error_gradient = self.error * -1.0
+            else:
+                self.error_gradient = self.error
         else:
             self.error_gradient = 0

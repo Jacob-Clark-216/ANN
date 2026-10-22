@@ -62,7 +62,7 @@ class Layer():
     def output_backward(self, targets:list):
         for n in self.layer_neurons:
             n.output_get_error(targets[self.layer_neurons.index(n)])
-            n.calc_error_gradient()
+            n.calc_error_gradient(False)
             n.calc_parameter_gradients()
     
     def backward(self, targets:list):
