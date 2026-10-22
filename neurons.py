@@ -81,10 +81,7 @@ class Identity(Neuron):
         self.output = self.weighted_sum()
 
     def calc_error_gradient(self, is_hidden = True):
-        if is_hidden:
-            self.error_gradient = self.error * -1.0
-        else:
-            self.error_gradient = self.error
+        self.error_gradient = self.error
     
 class Binary(Neuron):
     def __init__(self, num_inputs):
@@ -98,10 +95,7 @@ class Binary(Neuron):
             self.output = 0
 
     def calc_error_gradient(self, is_hidden = True):
-        if is_hidden:
-            self.error_gradient = self.error * -1.0
-        else:
-            self.error_gradient = self.error
+        self.error_gradient = self.error
 
 
 class Sigmoid(Neuron):
@@ -132,10 +126,7 @@ class ReLU(Neuron):
 
     def calc_error_gradient(self, is_hidden = True):
         if self.output > 0:
-            if is_hidden:
-                self.error_gradient = self.error * -1.0
-            else:
-                self.error_gradient = self.error
+            self.error_gradient = self.error
         else:
             self.error_gradient = 0
 
@@ -153,9 +144,6 @@ class LeakyReLU(Neuron):
 
     def calc_error_gradient(self, is_hidden = True):
         if self.output > 0:
-            if is_hidden:
-                self.error_gradient = self.error * -1.0
-            else:
-                self.error_gradient = self.error
+            self.error_gradient = self.error
         else:
             self.error_gradient = 0.01
