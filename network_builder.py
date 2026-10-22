@@ -153,8 +153,10 @@ class Network():
             for inputs, target in combined:
                 output = self.forward(inputs)
                 self.backward(target, learning_rate)
-                print(f"Round complete! ({output} | {target})")
-            print(f"Epoch {e+1} Complete!")
+            status = f"Epoch {e+1} of {epochs} Complete!"
+            print(status, end="")
+            print("\b"*len(status), end="")
+        print(f"Epoch {epochs} of {epochs} Complete!")
 
     def test(self, data:list, expected_values:list):
         success = 0
