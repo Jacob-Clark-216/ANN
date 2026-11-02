@@ -15,6 +15,16 @@ class Neuron():
         while len(self.weights) < num_inputs:
             self.weights.append(random.random())
 
+    def update_weights(self, weights:list):
+        self.weights = weights
+
+    def update_bias(self, bias:float):
+        self.bias = bias
+
+    def update_params(self, params:list):
+        self.bias = params.pop()
+        self.weights = params
+
     def __str__(self):
         output = ""
         output += f"{self.type}\n"

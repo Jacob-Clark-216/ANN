@@ -49,6 +49,76 @@ class Layer():
         for n in self.layer_neurons:
             n.update_num_input(new_num_inputs)
 
+    def update_bias(self, bias, index = None):
+        if type(bias) == list:
+            # Update all neurons with individual biases
+            if len(bias) != len(self.layer_neurons):
+                print(f"Number of bias inputs ({len(bias)}) does not match number of neurons in layer ({len(self.layer_neurons)}).")
+                raise SystemExit
+            for i, n in enumerate(self.layer_neurons):
+                n.update_bias(bias[i])
+        elif type(bias) == float and index == None:
+            # Update all neurons with the same bias
+            for n in self.layer_neurons:
+                n.update_bias(bias)
+        elif type(bias) == float and type(index) == int:
+            try:
+                # Update specified neuron at index with new bias
+                self.layer_neurons[index].update_bias(bias)
+            except(IndexError):
+                print(f"Neuron at index {index} does not exist. Please enter an index between 0 and {len(self.layer_neurons)} or leave blank to change all neurons.")
+                raise SystemExit
+        else:
+            print("Incorrect args for update bias method. Bias must be a float or list of floats and index, if used, must be an integer value.")
+            raise SystemExit
+
+    def update_weights(self, weights, index = None):
+        if index == None:
+            if len(weights) != len(self.layer_neurons):
+                print(f"Number of weight values do not match number of neurons. Include 1 list of weights per neuron or 'None' for no change or specify the index of the neuron you wish to change.")
+                raise SystemExit
+            # Update all neurons with each weight list
+            for i, n in enumerate(self.layer_neurons):
+                if weights[i] == None:
+                    pass
+                else:
+                    if type(weights[i]) == list:
+                        n.update_weights(weights[i])
+        elif type(index) == int and type(weights[0]) == float:
+            # Update specific neuron at given index with new weights
+            try:
+                self.layer_neurons[index].update_weights(weights)
+            except(IndexError):
+                print(f"Neuron at index {index} does not exist. Please enter an index between 0 and {len(self.layer_neurons)}.")
+                raise SystemExit
+        else:
+            print("Incorrect args for update weight method. Weights must be either a list of lists and no index specified or a list of floats with an integer index.")
+            raise SystemExit
+    
+    def update_params(self, weights, index = None):
+        if index == None:
+            if len(weights) != len(self.layer_neurons):
+                print(f"Number of weight values do not match number of neurons. Include 1 list of weights per neuron or 'None' for no change or specify the index of the neuron you wish to change.")
+                raise SystemExit
+            # Update all neurons with each parameter list
+            for i, n in enumerate(self.layer_neurons):
+                if weights[i] == None:
+                    pass
+                else:
+                    if type(weights[i]) == list:
+                        n.update_params(weights[i])
+        elif type(index) == int and type(weights[0]) == float:
+            # Update specific neuron at given index with new parameters
+            try:
+                self.layer_neurons[index].update_params(weights)
+            except(IndexError):
+                print(f"Neuron at index {index} does not exist. Please enter an index between 0 and {len(self.layer_neurons)}.")
+                raise SystemExit
+        else:
+            print("Incorrect args for update params method. Weights must be either a list of lists and no index specified or a list of floats with an integer index.")
+            raise SystemExit
+
+
     # <--------------------- Forward Pass ------------------------>
 
     def forward(self, inputs):
@@ -124,6 +194,43 @@ class Network():
             for layer in self.layers[index+1:]:
                 layer.update_num_inputs(layer_neurons)
                 layer_neurons = len(layer)
+
+    def update_bias(self, bias, layer_index = None, neuron_index = None):
+        if type(bias) == float and layer_index == None and neuron_index == None:
+                # Update all neurons with the same new bias
+                for layer in self.layers:
+                    layer.update(bias)
+        elif layer_index != None and neuron_index == None:
+            # Update all neurons in layer with new index
+            self.layers[layer_index].update_bias(bias)
+        elif type(bias) == float and layer_index != None and neuron_index == None:
+            # Update specific neuron bias
+            self.layers[layer_index].update_bias(bias, neuron_index)
+        else:
+            print("Incorrect argument format for network update bias method. The bias must be a float or list of floats and indicies can be added as integers in the order layer, neuron.")
+            raise SystemExit
+    
+    def update_weights(self, weights:list, layer_index = None, neuron_index = None):
+        if layer_index != None and neuron_index == None:
+            # Update all neurons in layer with new index
+            self.layers[layer_index].update_weights(weights)
+        elif  layer_index != None and neuron_index == None:
+            # Update specific neuron weights
+            self.layers[layer_index].update_weights(weights, neuron_index)
+        else:
+            print("Incorrect argument format for network update weights method. The weights must be a list or array (list of lists) of floats and indicies can be added as integers in the order layer, neuron.")
+            raise SystemExit
+    
+    def update_parameters(self, parameters:list, layer_index = None, neuron_index = None):
+        if layer_index != None and neuron_index == None:
+            # Update all neurons in layer with new index
+            self.layers[layer_index].update_parameters(parameters)
+        elif  layer_index != None and neuron_index == None:
+            # Update specific neuron parameters
+            self.layers[layer_index].update_parameters(parameters, neuron_index)
+        else:
+            print("Incorrect argument format for network update parameters method. The parameters must be a list or array (list of lists) of floats and indicies can be added as integers in the order layer, neuron.")
+            raise SystemExit
 
     # <----------------------- Forward ----------------------->
 
